@@ -4,11 +4,42 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var login = require('./routes/login');
+var logout = require('./routes/logout');
 
 var app = express();
+
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database('ChatRoomApp.db');
+
+// db initialization
+db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'",
+       function(err, rows) {
+  if(err !== null) {
+    console.log(err);
+  }
+  else if(rows === undefined) {
+    db.run('CREATE TABLE "messages" ' +
+           '("id" INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+           '"name" VARCHAR(255), ' +
+           '"text" VARCHAR(255), ' +
+           '"timestamp" DATETIME DEFAULT CURRENT_TIMESTAMP)', function(err) {
+      if(err !== null) {
+        console.log(err);
+      }
+      else {
+        console.log("SQL Table 'messages' initialized.");
+      }
+    });
+  }
+  else {
+    console.log("SQL Table 'messages' already initialized.");
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,8 +53,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+app.use(session({ secret: 'app', cookie: { maxAge: 60000 }}));
+var verifyUser = function(req, res, next) {
+    if(req.session.loggedIn) {
+        next(); 
+    } else {
+        if(req.body.username != null) {
+          req.session.name = req.body.username;
+          req.session.loggedIn = true;
+
+          app.locals.name = req.body.username;
+          res.locals.name = app.locals.name;
+          res.redirect('/');
+        } else {
+          res.render("login", {title: "Please log in."});
+        }
+    }   
+}
+app.use('/', verifyUser, routes);
+
+// app.use('/', routes);
 app.use('/users', users);
+app.use('/login', login);
+app.use('/logout', logout);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,6 +107,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

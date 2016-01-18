@@ -2,4 +2,9 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p #{name}, Welcome to #{title}
+
+  
+  
+  form(action="logout", method="post")
+    input(type="submit", value="Log out")

@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  p Enter your name to join the chat!
+  form(action="login", method="post")
+    input(type="text", name="username")
+    input(type="submit", value="Join chat")
