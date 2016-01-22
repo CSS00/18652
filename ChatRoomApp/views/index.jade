@@ -2,9 +2,15 @@ extends layout
 
 block content
   h1= title
-  p #{name}, Welcome to #{title}
+  p #{name}, Welcome to the Chat Room!
 
-  
-  
+  each msg in messages
+    p=msg.text + " by " + msg.name + " on " + msg.timestamp
+
+  form(action="add", method="post")
+    label Text
+    input(type="text", name="text")
+    input(type="submit", value="Post")
+
   form(action="logout", method="post")
     input(type="submit", value="Log out")
