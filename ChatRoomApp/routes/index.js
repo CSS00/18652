@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 	      next(err);
 	    }
 	    else {
-	      console.log(row);
+	      // console.log(row);
 	      res.render('index.jade', {messages: row}, function(err, html) {
 	        res.send(200, html);
 	      });

@@ -54,7 +54,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: 'app', cookie: { maxAge: 60000 }}));
+// maxAge = 10min
+app.use(session({ secret: 'app', cookie: { maxAge: 600000 }}));
 var verifyUser = function(req, res, next) {
     if(req.session.loggedIn) {
         next(); 
